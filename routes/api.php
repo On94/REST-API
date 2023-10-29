@@ -1,19 +1,27 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\AuthenticationController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
+Route::post('sign-up',[AuthenticationController::class,'signUp']);
+Route::post('sign-in',[AuthenticationController::class,'signIn']);
+Route::post('forgot-password', [AuthenticationController::class, 'forgotPassword']);
+Route::put('reset-password', [AuthenticationController::class, 'resetPassword']);
+Route::get('reset-password-link/{token}', [AuthenticationController::class, 'resetPasswordLink'])->name('reset.password.link');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middleware' => ['auth:api']], function () {
+
+    Route::prefix('articles')->group(function () {
+        Route::post('comment',[ArticleController::class,'comment']);
+        Route::post('like',[ArticleController::class,'like']);
+
+    });
+
+    Route::patch('change-email',[AuthenticationController::class,'changeEmail']);
+    Route::put('verify-new-email',[AuthenticationController::class,'verifyNewEmail']);
+
 });
+
+Route::post('article-store',[ArticleController::class,'store']);
+Route::get('articles',[ArticleController::class,'all']);
